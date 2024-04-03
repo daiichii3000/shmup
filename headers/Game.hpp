@@ -1,10 +1,19 @@
 #pragma once
 
-#include ""
+#include <SFML/Graphics.hpp>
+#include "Assets.hpp"
+#include "Entities.hpp"
 
 class Game
 {
 private:
+	sf::RenderWindow window;
+	sf::Event ev;
+	sf::Text text;
+	Assets assets;
+	Entities entities;
+
 public:
 	Game();
+	void run();
 };

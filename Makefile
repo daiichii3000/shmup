@@ -1,6 +1,7 @@
 include Makefile.inc
 
 all: $(BINARY)
+	@echo Complete!
 
 run: all
 	$(BINARY)
