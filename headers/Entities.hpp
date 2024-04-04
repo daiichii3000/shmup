@@ -17,7 +17,7 @@ public:
 	size_t count = 0;
 
 	Entities();
-	void add();
+	void add(sf::Texture& texture);
 	void remove();
 	EntityList& getEntities();
 };

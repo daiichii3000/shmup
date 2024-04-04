@@ -8,6 +8,7 @@ class Game
 {
 private:
 	sf::RenderWindow window;
+	sf::View view;
 	sf::Event ev;
 	sf::Text text;
 	Assets assets;
@@ -15,5 +16,6 @@ private:
 
 public:
 	Game();
+	void render();
 	void run();
 };
