@@ -2,10 +2,23 @@
 
 #include <SFML/Graphics.hpp>
 
+enum EntityType
+{
+	Ship,
+	//Bullet,
+	Basic,
+	//Asteroid
+};
+
 class Entity : public sf::Sprite
 {
 private:
 public:
-	Entity(sf::Vector2f);
-	Entity(sf::Vector2f, const sf::Texture&);
+	EntityType type;
+	size_t id = 0;
+	float health = 0;
+	float speed = 0;
+	float damage = 0;
+
+	Entity();
 };

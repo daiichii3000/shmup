@@ -5,6 +5,7 @@ Assets::Assets()
 	fonts["terminus"].loadFromFile("assets/terminus.ttf");
 
 	textures["ship"].loadFromFile("assets/ship.png");
+	textures["basic"].loadFromFile("assets/basic.png");
 }
 
 sf::Font& Assets::getFont(std::string name)

@@ -6,7 +6,7 @@
 
 #include "Entity.hpp"
 
-typedef std::vector<std::unique_ptr<Entity>> EntityList;
+typedef std::vector<Entity> EntityList;
 
 class Entities
 {
@@ -17,7 +17,7 @@ public:
 	size_t count = 0;
 
 	Entities();
-	void add(sf::Texture& texture);
+	void add(EntityType, sf::Vector2f, sf::Texture&);
 	void remove();
 	EntityList& getEntities();
 };
