@@ -7,7 +7,8 @@ enum EntityType
 	Ship,
 	//Bullet,
 	Basic,
-	//Asteroid
+	//Shooter,
+	Asteroid
 };
 
 class Entity : public sf::Sprite

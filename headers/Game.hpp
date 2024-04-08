@@ -20,7 +20,8 @@ private:
 	sf::RenderWindow window;
 	sf::View view;
 	sf::Event event;
-	sf::Text text;
+	sf::Text text; //debug
+	sf::CircleShape point;// debug
 
 	Assets assets;
 	Entities entities;
@@ -36,5 +37,6 @@ public:
 	void handleInput();
 	void movement();
 	void render();
+	void spawnEnemies();
 	void run();
 };
