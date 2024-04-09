@@ -1,6 +1,6 @@
 #include <random>
 #include <cmath>
-#include <SFML/System.hpp>
+#include <SFML/Graphics/Sprite.hpp>
 
 std::random_device rd;
 std::mt19937 gen(rd());
@@ -31,3 +31,32 @@ sf::Vector2f normalize(sf::Vector2f v)
 	v.y /= len;
 	return v;
 }
+
+float vector2len(const sf::Vector2f& A, const sf::Vector2f& B)
+{
+	sf::Vector2f L;
+	L = A - B;
+
+	return sqrt(L.x*L.x + L.y*L.y);
+}
+
+float twoPointsAngle(const sf::Vector2f& A, const sf::Vector2f& B)
+{
+	sf::Vector2f diff;
+	diff = A - B;
+	return toDegree(atan2(diff.y, diff.x));
+}
+
+/*
+bool circleTest(const sf::Sprite& sprite1, const sf::Sprite& sprite2)
+{
+	auto spr1Size = getSpriteSize(sprite1);
+	auto spr2Size = getSpriteSize(sprite2);
+	auto radius1 = (spr1Size.x + spr1Size.y) / 4.f;
+	auto radius2 = (spr2Size.x + spr2Size.y) / 4.f;
+
+	auto diff = getSpriteCenter(sprite1) - getSpriteCenter(sprite2);
+
+	return (diff.x * diff.x + diff.y * diff.y <= (radius1 + radius2) * (radius1 + radius2));
+}
+*/

@@ -7,7 +7,7 @@ enum EntityType
 	Ship,
 	//Bullet,
 	Basic,
-	//Shooter,
+	Shooter,
 	Asteroid
 };
 

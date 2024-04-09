@@ -1,10 +1,12 @@
 #include "Game.hpp"
 
-#include <cmath>
 
 float randf(float start = 0.0, float end = 1.0);
 float toDegree(float deg);
 sf::Vector2f normalize(sf::Vector2f v);
+float vector2len(const sf::Vector2f& A, const sf::Vector2f& B);
+float twoPointsAngle(const sf::Vector2f& A, const sf::Vector2f& B);
+
 
 Game::Game()
 	: window(sf::VideoMode(1280, 720), "shmup", sf::Style::None, sf::ContextSettings(0,0,0)),
@@ -23,14 +25,25 @@ Game::Game()
 	point.setOrigin(5.0,5.0);
 }
 
+
 void Game::handleEvent()
 {
 	while (window.pollEvent(event))
 	{
 		if (event.type == sf::Event::Closed)
 			window.close();
+		/*
+		if (event.type == sf::Event::MouseWheelScrolled)
+		{
+			if (event.mouseWheelScroll.delta < 0)
+				view.zoom(0.8);
+			else
+				view.zoom(1.2);
+		}
+		*/
 	}
 }
+
 
 void Game::handleInput()
 {
@@ -50,15 +63,15 @@ void Game::handleInput()
 		player.fire = true;
 }
 
+
 void Game::movement()
 {
-	for (auto& [e_type, e_list] : entities.getEntityMap())
+	for (auto& en : entities.getEntities())
 	{
-		switch (e_type)
+		switch (en->type)
 		{
 			case EntityType::Ship:
 			{
-				auto& en = e_list[0];
 				sf::Vector2f ship_move;
 
 				if (player.move_left)
@@ -79,35 +92,43 @@ void Game::movement()
 				en->move(ship_move);
 
 				sf::Vector2f mouse = window.mapPixelToCoords(sf::Mouse::getPosition(window));
-				sf::Vector2f ship_mouse;
-				ship_mouse.x = mouse.x - en->getPosition().x;
-				ship_mouse.y = mouse.y - en->getPosition().y;
-				en->setRotation(toDegree(atan2(ship_mouse.y, ship_mouse.x))+90);
-				point.setPosition(ship_mouse);
+				en->setRotation(twoPointsAngle(mouse, en->getPosition())+90);
 				break;
 			}
 
 			case EntityType::Basic:
 			{
-				for (auto& en : e_list)
-				{
-					en->rotate(45.0*dt);
-					en->move(normalize(entities.getShip()->getPosition() - en->getPosition()) * en->speed * dt);
-				}
+				en->rotate(45.0*dt);
+				en->move(normalize(entities.getShipPosition() - en->getPosition()) * en->speed * dt);
+				break;
+			}
+
+			case EntityType::Shooter:
+			{
+				en->setRotation(twoPointsAngle(entities.getShipPosition(), en->getPosition())-90);
+
+				float dist = vector2len(en->getPosition(), entities.getShip()->getPosition());
+				sf::Vector2f norm = normalize(entities.getShip()->getPosition() - en->getPosition()) * en->speed * dt;
+				sf::Vector2f movement;
+				movement.x = norm.y;
+				movement.y = -norm.x;
+
+				if (dist > 80)
+					en->move(norm);
+				else
+					en->move(movement);
 				break;
 			}
 
 			case EntityType::Asteroid:
 			{
-				for (auto& en : e_list)
-				{
-					en->rotate(15.0*dt);
-				}
+				en->rotate(15.0*dt);
 				break;
 			}
 		}
 	}
 }
+
 
 void Game::render()
 {
@@ -118,10 +139,13 @@ void Game::render()
 	}
 }
 
+
 void Game::spawnEnemies()
 {
 	entities.add(EntityType::Basic, sf::Vector2f(100.0, 50.0), assets.getTexture("basic"));
 	entities.add(EntityType::Basic, sf::Vector2f(140.0, 50.0), assets.getTexture("basic"));
+
+	entities.add(EntityType::Shooter, sf::Vector2f(180.0, 100.0), assets.getTexture("shooter"));
 
 	entities.add(EntityType::Asteroid, sf::Vector2f(randf(40.0,600.0), randf(20,340.0)), assets.getTexture("asteroid" + std::to_string((int)randf(1.0,6.99))));
 	entities.add(EntityType::Asteroid, sf::Vector2f(randf(40.0,600.0), randf(20,340.0)), assets.getTexture("asteroid" + std::to_string((int)randf(1.0,6.99))));
@@ -129,6 +153,7 @@ void Game::spawnEnemies()
 	entities.add(EntityType::Asteroid, sf::Vector2f(randf(40.0,600.0), randf(20,340.0)), assets.getTexture("asteroid" + std::to_string((int)randf(1.0,6.99))));
 	entities.add(EntityType::Asteroid, sf::Vector2f(randf(40.0,600.0), randf(20,340.0)), assets.getTexture("asteroid" + std::to_string((int)randf(1.0,6.99))));
 }
+
 
 void Game::run()
 {

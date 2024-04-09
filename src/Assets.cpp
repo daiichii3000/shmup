@@ -6,6 +6,8 @@ Assets::Assets()
 
 	textures["ship"].loadFromFile("assets/ship.png");
 	textures["basic"].loadFromFile("assets/basic.png");
+	textures["shooter"].loadFromFile("assets/shooter.png");
+
 	textures["asteroid1"].loadFromFile("assets/asteroid1.png");
 	textures["asteroid2"].loadFromFile("assets/asteroid2.png");
 	textures["asteroid3"].loadFromFile("assets/asteroid3.png");

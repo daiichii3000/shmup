@@ -3,6 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include "Assets.hpp"
 #include "Entities.hpp"
+#include "Timers.hpp"
 
 struct PlayerAction
 {
@@ -25,6 +26,7 @@ private:
 
 	Assets assets;
 	Entities entities;
+	Timers timers;
 
 	PlayerAction player;
 
