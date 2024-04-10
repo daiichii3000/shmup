@@ -21,6 +21,7 @@ private:
 	sf::RenderWindow window;
 	sf::View view;
 	sf::Event event;
+	sf::Cursor cursor;
 	sf::Text text; //debug
 	sf::CircleShape point;// debug
 

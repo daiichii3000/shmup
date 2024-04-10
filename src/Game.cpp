@@ -15,6 +15,9 @@ Game::Game()
 	window.setFramerateLimit(60);
 	window.setView(view);
 
+	cursor.loadFromPixels(shooter_cursor.pixel_data, sf::Vector2u(shooter_cursor.width, shooter_cursor.width), sf::Vector2u(16,16));
+	window.setMouseCursor(cursor);
+
 	entities.add(EntityType::Ship, view.getCenter(), assets.getTexture("ship"));
 
 	text.setFont(assets.getFont("terminus"));

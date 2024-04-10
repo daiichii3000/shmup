@@ -6,6 +6,8 @@
 #include <string>
 #include <iostream>
 
+#include "../assets/cursor.h"
+
 class Assets
 {
 private:
