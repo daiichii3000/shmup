@@ -8,14 +8,18 @@
 
 #include "../assets/cursor.h"
 
+typedef std::map<std::string, sf::Font> FontMap;
+typedef std::map<std::string, sf::Texture> TextureMap;
+
 class Assets
 {
 private:
-	std::map<std::string, sf::Font> fonts;
-	std::map<std::string, sf::Texture> textures;
+	FontMap fonts;
+	TextureMap textures;
 
 public:
 	Assets();
 	sf::Font& getFont(std::string);
 	sf::Texture& getTexture(std::string);
+	TextureMap& getTextureMap();
 };

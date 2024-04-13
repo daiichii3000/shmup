@@ -5,6 +5,8 @@ Assets::Assets()
 	fonts["terminus"].loadFromFile("assets/terminus.ttf");
 
 	textures["ship"].loadFromFile("assets/ship.png");
+	textures["bullet"].loadFromFile("assets/bullet.png");
+
 	textures["basic"].loadFromFile("assets/basic.png");
 	textures["shooter"].loadFromFile("assets/shooter.png");
 
@@ -24,4 +26,9 @@ sf::Font& Assets::getFont(std::string name)
 sf::Texture& Assets::getTexture(std::string name)
 {
 	return textures[name];
+}
+
+TextureMap& Assets::getTextureMap()
+{
+	return textures;
 }

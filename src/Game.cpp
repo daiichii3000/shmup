@@ -2,14 +2,10 @@
 
 
 float randf(float start = 0.0, float end = 1.0);
-float toDegree(float deg);
-sf::Vector2f normalize(sf::Vector2f v);
-float vector2len(const sf::Vector2f& A, const sf::Vector2f& B);
-float twoPointsAngle(const sf::Vector2f& A, const sf::Vector2f& B);
 
 
 Game::Game()
-	: window(sf::VideoMode(1280, 720), "shmup", sf::Style::None, sf::ContextSettings(0,0,0)),
+	: window(sf::VideoMode(1920, 1080), "shmup", sf::Style::None, sf::ContextSettings(0,0,0)),
 	  view(sf::FloatRect(0.0, 0.0, 640.0, 360.0))
 {
 	window.setFramerateLimit(60);
@@ -18,7 +14,7 @@ Game::Game()
 	cursor.loadFromPixels(shooter_cursor.pixel_data, sf::Vector2u(shooter_cursor.width, shooter_cursor.width), sf::Vector2u(16,16));
 	window.setMouseCursor(cursor);
 
-	entities.add(EntityType::Ship, view.getCenter(), assets.getTexture("ship"));
+	entities_to_add.push(EntityInfo{Ship, view.getCenter(), assets.getTexture("ship")});
 
 	text.setFont(assets.getFont("terminus"));
 	text.setCharacterSize(12);
@@ -63,71 +59,26 @@ void Game::handleInput()
 		player.slowdown = true;
 
 	if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+	{
 		player.fire = true;
+	}
 }
 
 
-void Game::movement()
+void Game::action()
 {
-	for (auto& en : entities.getEntities())
+	if (player.fire)
 	{
-		switch (en->type)
+		if (timers.firing_timer.getElapsedTime() >= timers.firing_cooldown)
 		{
-			case EntityType::Ship:
+			entities_to_add.push(EntityInfo
 			{
-				sf::Vector2f ship_move;
-
-				if (player.move_left)
-					ship_move.x -= 1;
-				if (player.move_right)
-					ship_move.x += 1;
-				if (player.move_up)
-					ship_move.y -= 1;
-				if (player.move_down)
-					ship_move.y += 1;
-
-				ship_move = normalize(ship_move);
-				ship_move = ship_move * en->speed * dt;
-
-				if (player.slowdown)
-					ship_move = ship_move / (float)2.0;
-
-				en->move(ship_move);
-
-				sf::Vector2f mouse = window.mapPixelToCoords(sf::Mouse::getPosition(window));
-				en->setRotation(twoPointsAngle(mouse, en->getPosition())+90);
-				break;
-			}
-
-			case EntityType::Basic:
-			{
-				en->rotate(45.0*dt);
-				en->move(normalize(entities.getShipPosition() - en->getPosition()) * en->speed * dt);
-				break;
-			}
-
-			case EntityType::Shooter:
-			{
-				en->setRotation(twoPointsAngle(entities.getShipPosition(), en->getPosition())-90);
-
-				float dist = vector2len(en->getPosition(), entities.getShip()->getPosition());
-				sf::Vector2f norm = normalize(entities.getShip()->getPosition() - en->getPosition()) * en->speed * dt;
-				sf::Vector2f movement;
-				movement.x = norm.y;
-				movement.y = -norm.x;
-
-				if (dist > 80)
-					en->move(norm);
-				else
-					en->move(movement);
-				break;
-			}
-
-			case EntityType::Asteroid:
-			{
-				en->rotate(15.0*dt);
-				break;
-			}
+				Bullet,
+				entities.getShipPosition(),
+				assets.getTexture("bullet"),
+				entities.getShip()->getRotation()
+			});
+			timers.firing_timer.restart();
 		}
 	}
 }
@@ -145,16 +96,25 @@ void Game::render()
 
 void Game::spawnEnemies()
 {
-	entities.add(EntityType::Basic, sf::Vector2f(100.0, 50.0), assets.getTexture("basic"));
-	entities.add(EntityType::Basic, sf::Vector2f(140.0, 50.0), assets.getTexture("basic"));
+	entities_to_add.push(EntityInfo
+	{
+		Basic,
+		sf::Vector2f(100.0, 50),
+		assets.getTexture("basic")
+	});
 
-	entities.add(EntityType::Shooter, sf::Vector2f(180.0, 100.0), assets.getTexture("shooter"));
-
-	entities.add(EntityType::Asteroid, sf::Vector2f(randf(40.0,600.0), randf(20,340.0)), assets.getTexture("asteroid" + std::to_string((int)randf(1.0,6.99))));
-	entities.add(EntityType::Asteroid, sf::Vector2f(randf(40.0,600.0), randf(20,340.0)), assets.getTexture("asteroid" + std::to_string((int)randf(1.0,6.99))));
-	entities.add(EntityType::Asteroid, sf::Vector2f(randf(40.0,600.0), randf(20,340.0)), assets.getTexture("asteroid" + std::to_string((int)randf(1.0,6.99))));
-	entities.add(EntityType::Asteroid, sf::Vector2f(randf(40.0,600.0), randf(20,340.0)), assets.getTexture("asteroid" + std::to_string((int)randf(1.0,6.99))));
-	entities.add(EntityType::Asteroid, sf::Vector2f(randf(40.0,600.0), randf(20,340.0)), assets.getTexture("asteroid" + std::to_string((int)randf(1.0,6.99))));
+	entities_to_add.push(EntityInfo
+	{
+		Shooter,
+		sf::Vector2f(140.0, 50),
+		assets.getTexture("shooter")
+	});
+	entities_to_add.push(EntityInfo
+	{
+		Asteroid,
+		sf::Vector2f(randf(40.0,500.0), randf(20,340.0)),
+		assets.getTexture("asteroid" + std::to_string((int)randf(1.0,6.99)))
+	});
 }
 
 
@@ -164,19 +124,27 @@ void Game::run()
 
 	while (window.isOpen())
 	{
-		handleEvent();
-
 		window.clear();
-
-		dt = dt_clock.restart().asSeconds();
+		text.setString("");
 
 		player = PlayerAction();
-		handleInput();
+		dt = timers.dt_clock.restart().asSeconds();
 
+		if (!entities_to_add.empty())
+			entities.addEntities(entities_to_add);
+
+		handleEvent();
+		handleInput();
+		action();
 		movement();
 		window.setView(view);
+		collision();
 
+		text.setString(std::to_string(entities.getShip()->health));
+		//text.setString(std::to_string(timers.game_time.getElapsedTime().asSeconds()));
 		render();
+
+		entities.removeEntities();
 
 		window.display();
 	}

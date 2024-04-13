@@ -9,65 +9,101 @@ Entities::Entities()
 }
 
 
-void Entities::add(EntityType type, sf::Vector2f pos, sf::Texture& texture)
+void Entities::addEntities(std::queue<EntityInfo>& info)
 {
-	auto e = std::make_shared<Entity>();
-	e->id = spawned+1;
-	e->type = type;
-	e->setPosition(pos);
-	e->setTexture(texture);
-	e->setOrigin(texture.getSize().x / 2.0, texture.getSize().y / 2.0);
-
-	switch (type)
+	for (; !info.empty(); info.pop())
 	{
-		case EntityType::Ship:
-			e->health = 5;
-			e->speed = 100;
-			break;
-		case EntityType::Basic:
-			e->health = 4;
-			e->speed = 25;
-			break;
-		case EntityType::Shooter:
-			e->health = 2;
-			e->speed = 50;
-			break;
-		case EntityType::Asteroid:
-			e->speed = 50;
-			e->setRotation(randf(0.0, 360.0));
-			break;
+		auto i = info.front();
+		auto e = std::make_shared<Entity>();
+
+		e->id = spawned+1;
+		e->type = i.type;
+		e->setPosition(i.pos);
+		e->setTexture(i.texture);
+		e->setOrigin(e->getTexture()->getSize().x / 2.0, e->getTexture()->getSize().y / 2.0);
+		e->setRotation(i.rotation);
+
+		switch (e->type)
+		{
+			case EntityType::Ship:
+				e->health = 5;
+				e->speed = 100;
+				break;
+
+			case EntityType::Bullet:
+				e->speed = 300;
+				e->damage = 1;
+				break;
+
+			case EntityType::Basic:
+				e->health = 4;
+				e->speed = 25;
+				e->damage = 1;
+				break;
+
+			case EntityType::Shooter:
+				e->health = 2;
+				e->speed = 50;
+				e->damage = 1;
+				break;
+
+			case EntityType::Asteroid:
+				e->health = 1;
+				e->damage = 1;
+				e->speed = 50;
+				e->setRotation(randf(0.0, 360.0));
+				break;
+		}
+
+		entity_list.push_back(e);
+		entity_map[e->type].push_back(e);
+
+		spawned++;
+	}
+}
+
+
+void Entities::removeEntities()
+{
+	for (int i = 0; i < entity_list.size(); i++)
+	{
+		if (entity_list[i]->expired)
+		{
+			entity_list.erase(entity_list.begin() + i);
+		}
 	}
 
-	entity_list.push_back(e);
-	entity_map[type].push_back(e);
-
-	spawned++;
+	for (auto& [t, l] : entity_map)
+	{
+		for (int i = 0; i < l.size(); i++)
+		{
+			if (l[i]->expired)
+			{
+				l.erase(l.begin() + i);
+			}
+		}
+	}
 }
 
-
-void Entities::remove()
-{
-}
-
-const EntityMap& Entities::getEntityMap()
+EntityMap& Entities::getEntityMap()
 {
 	return entity_map;
 }
 
 
-const EntityList& Entities::getEntities()
+EntityList& Entities::getEntities()
 {
 	return entity_list;
 }
 
 
-const EntityList& Entities::getEntitiesByType(EntityType type)
+EntityList& Entities::getEntitiesByType(EntityType type)
 {
 	return entity_map[type];
 }
 
 
-const std::shared_ptr<Entity>& Entities::getShip()
+std::shared_ptr<Entity>& Entities::getShip()
 {
 	return entity_list[0];
 }

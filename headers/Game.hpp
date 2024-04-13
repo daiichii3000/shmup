@@ -1,9 +1,9 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
+
 #include "Assets.hpp"
 #include "Entities.hpp"
-#include "Timers.hpp"
 
 struct PlayerAction
 {
@@ -13,6 +13,16 @@ struct PlayerAction
 	bool move_right = false;
 	bool slowdown = false;
 	bool fire = false;
+};
+
+struct Timers
+{
+	sf::Clock dt_clock;
+	sf::Clock game_time;
+	sf::Clock firing_timer;
+	sf::Time firing_cooldown = sf::milliseconds(200);
+	sf::Time invul_time = sf::seconds(1);
+	sf::Time bullet_lifetime = sf::seconds(5);
 };
 
 class Game
@@ -25,6 +35,8 @@ private:
 	sf::Text text; //debug
 	sf::CircleShape point;// debug
 
+	std::queue<EntityInfo> entities_to_add;
+
 	Assets assets;
 	Entities entities;
 	Timers timers;
@@ -32,13 +44,14 @@ private:
 	PlayerAction player;
 
 	float dt;
-	sf::Clock dt_clock;
 
 public:
 	Game();
 	void handleEvent();
 	void handleInput();
+	void action();
 	void movement();
+	void collision();
 	void render();
 	void spawnEnemies();
 	void run();
