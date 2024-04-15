@@ -25,7 +25,7 @@ Game::Game()
 }
 
 
-void Game::handleEvent()
+void Game::handleEvents()
 {
 	while (window.pollEvent(event))
 	{
@@ -44,7 +44,7 @@ void Game::handleEvent()
 }
 
 
-void Game::handleInput()
+void Game::handleInputs()
 {
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
 		player.move_left = true;

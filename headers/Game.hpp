@@ -47,8 +47,8 @@ private:
 
 public:
 	Game();
-	void handleEvent();
-	void handleInput();
+	void handleEvents();
+	void handleInputs();
 	void action();
 	void movement();
 	void collision();
